@@ -1,0 +1,17 @@
+import { Story, Message, Comment } from '../types/types';
+
+export const MOCK_STORIES: Story[] = [
+  { id: 1, content: "I never told anyone, but I've been writing letters to my future self since I was 12. Today, on my 30th birthday, I received the final one.", likes: 324, comments: 42, author: "anonymous123", timestamp: "2h ago" },
+  { id: 2, content: "The coffee shop barista has been drawing small hearts on my cup for weeks. Today I noticed she doesn't do it for anyone else.", likes: 576, comments: 83, author: "coffeeaddict", timestamp: "3h ago" },
+  { id: 3, content: "I found a journal in my grandmother's attic that detailed a secret life she had before meeting my grandfather.", likes: 892, comments: 156, author: "historybuff", timestamp: "5h ago" },
+];
+
+export const MOCK_MESSAGES: Message[] = [
+  { id: 1, user: "storyteller92", avatar: "/api/placeholder/40/40", lastMessage: "Your story about the mountain hike was amazing!", unread: true, time: "12m ago" },
+  { id: 2, user: "bookworm", avatar: "/api/placeholder/40/40", lastMessage: "Would you mind if I shared your story with my writing group?", unread: false, time: "1h ago" },
+];
+
+export const MOCK_COMMENTS: Comment[] = [
+  { id: 1, user: "reader543", avatar: "/api/placeholder/40/40", content: "This story touched my heart. I had a similar experience last year.", time: "1h ago" },
+  { id: 2, user: "bookworm", avatar: "/api/placeholder/40/40", content: "Beautifully written. The imagery is so vivid!", time: "2h ago" },
+];
