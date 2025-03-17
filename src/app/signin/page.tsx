@@ -1,60 +1,65 @@
-"use client";
-import React, { useState, useRef, useEffect } from 'react';
+'use client';
+import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/config/firebase'; // Import from updated firebase.ts
+import { auth, googleProvider } from '@/config/firebase';
 import Cookies from 'js-cookie';
 import { AuthForm } from '@/components/AuthForm';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
-import { useRouter } from 'next/navigation';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.3 });
-  const router = useRouter();
 
-  useEffect(() => {
-    setIsClient(true);
-    const token = Cookies.get('sr-token');
-    if (token && isClient) {
-      router.push('/following');
-    }
-  }, [router]);
+  const textReveal = {
+    initial: {},
+    animate: {
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const letterAnimation = {
+    initial: { y: 100, opacity: 0 },
+    animate: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+      },
+    },
+  };
 
   const handleEmailSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isClient) return;
     try {
       setError(null);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       Cookies.set('sr-token', token, { expires: 24, secure: true, sameSite: 'strict' });
-      router.push('/following');
+      window.location.href = '/';
     } catch (error: any) {
       setError(error.message || 'Invalid credentials. Please try again.');
     }
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isClient) return;
     try {
       setError(null);
       const userCredential = await signInWithPopup(auth, googleProvider);
       const token = await userCredential.user.getIdToken();
       Cookies.set('sr-token', token, { expires: 24, secure: true, sameSite: 'strict' });
-      router.push('/following');
+      window.location.href = '/';
     } catch (error: any) {
       setError(error.message || 'Google sign-in failed. Please try again.');
     }
   };
-
-  if (!isClient) {
-    return null;
-  }
 
   return (
     <section
@@ -104,7 +109,7 @@ export default function SignInPage() {
             <p className="text-center text-muted-foreground mt-6">
               Don&apos;t have an account?{' '}
               <button
-                onClick={() => navigate('/signup')} // Use navigate instead of window.location
+                onClick={() => window.location.href = '/signup'}
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Sign Up

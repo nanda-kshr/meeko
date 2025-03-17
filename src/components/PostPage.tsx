@@ -3,6 +3,8 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 import { ArrowLeft, Send } from 'lucide-react';
 import { Page } from '@/types/types';
 import { useTheme } from '../context/ThemeContext';
+import { db } from '@/config/firebase'; // Import Firestore instance
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'; // Firestore functions
 
 interface PostPageProps {
   storyContent: string;
@@ -19,13 +21,32 @@ const PostPage: React.FC<PostPageProps> = ({
 }) => {
   const { theme } = useTheme();
   const [characterCount, setCharacterCount] = useState(0);
+  const [isPosting, setIsPosting] = useState(false); // Track posting state
   const MAX_CHARACTERS = 500;
 
-  const handlePostStory = () => {
-    if (storyContent.trim()) {
+  const handlePostStory = async () => {
+    if (!storyContent.trim()) return;
+
+    setIsPosting(true); // Show loading state
+    try {
+      // Add story to Firestore
+      await addDoc(collection(db, 'stories'), {
+        content: storyContent,
+        createdAt: serverTimestamp(), // Add timestamp
+        authorId: 'current-user-id', // Replace with actual user ID (e.g., from auth)
+        likes: 0, // Optional: Initial likes count
+        savedBy: [], // Optional: Array of user IDs who saved the story
+      });
+
+      // Success: Reset state and navigate back
       onPost();
       setStoryContent('');
       setCurrentPage('fyp');
+    } catch (error) {
+      console.error('Error posting story:', error);
+      alert('Failed to post story. Please try again.');
+    } finally {
+      setIsPosting(false); // Reset loading state
     }
   };
 
@@ -35,7 +56,7 @@ const PostPage: React.FC<PostPageProps> = ({
     setCharacterCount(content.length);
   };
 
-  // Theme-specific styles
+  // Theme-specific styles (unchanged)
   const themeStyles = {
     light: {
       container: 'bg-gray-100 text-gray-900',
@@ -96,12 +117,11 @@ const PostPage: React.FC<PostPageProps> = ({
           value={storyContent}
           maxLength={MAX_CHARACTERS}
           onChange={handleContentChange}
+          disabled={isPosting} // Disable while posting
         ></textarea>
-        {/* Glowing Effect (Creative theme only) */}
         {theme === 'creative' && (
           <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${currentTheme.glow} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl -z-10`}></div>
         )}
-        {/* Character Counter */}
         <div className={`flex justify-end mt-3 text-sm font-mono ${currentTheme.counter}`}>
           <span
             className={`transition-all duration-300 ${characterCount > MAX_CHARACTERS * 0.9 ? `${currentTheme.counterWarning} font-bold scale-105` : ''}`}
@@ -115,15 +135,15 @@ const PostPage: React.FC<PostPageProps> = ({
       <div className="flex justify-end">
         <button
           onClick={handlePostStory}
-          disabled={!storyContent.trim()}
+          disabled={!storyContent.trim() || isPosting} // Disable if empty or posting
           className={`
             flex items-center ${currentTheme.button} 
             px-8 py-3 rounded-xl shadow-lg transition-all duration-300 transform
-            ${!storyContent.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 hover:shadow-2xl'}
+            ${!storyContent.trim() || isPosting ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 hover:shadow-2xl'}
           `}
         >
           <Send size={22} className="mr-3" strokeWidth={2} />
-          Launch Story
+          {isPosting ? 'Posting...' : 'Launch Story'}
         </button>
       </div>
     </div>
