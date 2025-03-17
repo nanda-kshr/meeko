@@ -7,7 +7,6 @@ import InboxPage from './InboxPage';
 import SavedPage from './SavedPage';
 import CommentsPage from './CommentsPage';
 import Conversation from './Conversation';
-import { Navigation } from './Navigation';
 import { Message, Page } from '@/types/types';
 
 export function MeekoApp() {
@@ -19,7 +18,6 @@ export function MeekoApp() {
   const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
   const [storyContent, setStoryContent] = useState('');
 
-  // Page router
   const renderPageContent = () => {
     if (showComments) return (
       <CommentsPage 
@@ -92,13 +90,6 @@ export function MeekoApp() {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white font-sans">
       {renderPageContent()}
-      
-      {!showComments && !currentMessage && (
-        <Navigation 
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
-      )}
     </div>
   );
 }

@@ -23,4 +23,4 @@ export type Comment = {
   content: string;
   time: string;
 };
-export type Page = 'fyp' | 'following' | 'post' | 'inbox' | 'saved' | 'comments' | 'signin' | 'signup';
+export type Page = 'fyp' | 'following' | 'settings' | 'post' | 'inbox' | 'saved' | 'comments' | 'signin' | 'signup';
