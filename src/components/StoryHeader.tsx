@@ -1,3 +1,5 @@
+// app/components/StoryHeader.tsx
+
 'use client';
 import { MoreVertical } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';

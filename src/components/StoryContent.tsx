@@ -1,3 +1,5 @@
+// /components/StoryContent.tsx
+
 'use client';
 import { useRef } from 'react';
 
