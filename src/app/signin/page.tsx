@@ -44,8 +44,8 @@ export default function SignInPage() {
       const token = await userCredential.user.getIdToken();
       Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
       window.location.href = '/';
-    } catch (error: any) {
-      setError(error.message || 'Invalid credentials. Please try again.');
+    } catch{
+      setError('Invalid credentials. Please try again.');
     }
   };
 
@@ -56,8 +56,8 @@ export default function SignInPage() {
       const token = await userCredential.user.getIdToken();
       Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
       window.location.href = '/';
-    } catch (error: any) {
-      setError(error.message || 'Google sign-in failed. Please try again.');
+    } catch {
+      setError('Google sign-in failed. Please try again.');
     }
   };
 

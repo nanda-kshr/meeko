@@ -21,6 +21,7 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
   const [isSwiping, setIsSwiping] = useState(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [deltaX, setDeltaX] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -123,6 +124,8 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
 
   const handleSaveStory = async (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    setIsSaving(true);
     const id = stories[currentStoryIndex].id;
 
     try {
@@ -150,6 +153,46 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
       }
     } catch (error) {
       console.error("Error saving story:", error);
+    }
+    finally{
+      setIsSaving(false);
+    }
+  };
+
+
+  const handleUnsaveStory = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const id = stories[currentStoryIndex].id;
+
+    setIsSaving(true);
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`/api/v1/stories/${id}/unsave`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Failed to save story:", data.error);
+        return;
+      }
+    } catch (error) {
+      console.error("Error saving story:", error);
+    }
+    finally{
+      setIsSaving(false);
     }
   };
 
@@ -248,7 +291,11 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
                 handleLikeStory={handleLikeStory} 
                 handleUnlikeStory={handleUnlikeStory}
               />
-              <StoryActions handleSaveStory={handleSaveStory} />
+              <StoryActions 
+                handleSaveStory={handleSaveStory} 
+                handleUnsaveStory={handleUnsaveStory}
+                isSaving={isSaving}
+              />
             </div>
           </div>
         </div>

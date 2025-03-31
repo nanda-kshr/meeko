@@ -5,7 +5,6 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   try {
-
     if (!db) {
       console.error("db is not initialized");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
@@ -19,7 +18,6 @@ export async function POST(req: NextRequest) {
     const token = authHeader.split("Bearer ")[1];
     const decodedToken = await adminAuth.verifyIdToken(token);
     const user = await adminAuth.getUser(decodedToken.uid);
-    console.log("User:", { uid: user.uid, displayName: user.displayName });
 
     const { title, content, genre } = await req.json();
     
@@ -47,7 +45,6 @@ export async function POST(req: NextRequest) {
       timestamp: FieldValue.serverTimestamp(),
     });
     
-    console.log("Story posted with ID:", docRef.id);
     return NextResponse.json({ id: docRef.id, message: "Story posted successfully" }, { status: 201 });
   } catch (error) {
     console.error("Error posting story:", error);
@@ -64,7 +61,6 @@ export async function POST(req: NextRequest) {
 // The GET handler and helper functions (getMyStories, getFollowingStories, getRandomStories) remain unchanged
 export async function GET(req: NextRequest) {
   try {
-    console.log("GET /api/v1/stories received");
     if (!db) {
       console.error("db is not initialized");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
@@ -93,8 +89,6 @@ export async function GET(req: NextRequest) {
         timestamp: data.timestamp?.toDate?.() ? data.timestamp.toDate().toISOString() : null,
       };
     });
-    
-    console.log("Fetched stories:", stories.length);
     return NextResponse.json(stories, { status: 200 });
   } catch (error) {
     console.error("Error fetching stories:", error);
@@ -176,7 +170,6 @@ async function getFollowingStories(req: NextRequest) {
       };
     });
 
-    console.log("Fetched following stories:", stories.length);
     return NextResponse.json(stories, { status: 200 });
   } catch (error) {
     console.error("Error fetching following stories:", error);
@@ -202,7 +195,6 @@ async function getRandomStories() {
     const shuffled = allStories.sort(() => 0.5 - Math.random());
     const randomStories = shuffled.slice(0, Math.min(10, allStories.length));
 
-    console.log("Fetched random stories:", randomStories.length);
     return NextResponse.json(randomStories, { status: 200 });
   } catch (error) {
     console.error("Error fetching random stories:", error);

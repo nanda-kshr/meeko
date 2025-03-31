@@ -1,11 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { StoryFeed } from '@/components/StoryFeed';
-
+import { Loading } from '@/components/Loading'; // Import the new component
 import { auth } from '@/config/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import type { Story } from '@/lib/types';
-
 
 export default function FypPage() {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
@@ -36,14 +35,13 @@ export default function FypPage() {
         }
         const allStories: Story[] = (await response.json()).map((story: Story) => ({
           id: story.id,
-          author: story.author.name, 
+          author: story.author.name,
           content: story.content,
           timestamp: story.savedAt,
         }));
 
         const filteredStories = allStories.filter(story => story.author.name !== user.displayName);
         setStories(filteredStories);
-
       } catch (err) {
         console.error('Error fetching stories:', err);
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -54,15 +52,8 @@ export default function FypPage() {
     fetchAllStoriesExceptMine();
   }, [user]);
 
-
   if (loading) {
-    return (
-      <div className="flex flex-col h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white font-sans">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-xl">Loading stories...</div>
-        </div>
-      </div>
-    );
+    return <Loading message="Loading stories..." />;
   }
 
   if (error) {
