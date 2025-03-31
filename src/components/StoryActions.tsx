@@ -35,7 +35,7 @@ export const StoryActions: React.FC<StoryActionsProps> = ({
         } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-700'}`}
       >
         {isSaving ? (
-          <Loading size="sm" variant="inline" />
+          <Loading />
         ) : (
           <span>{isSaved ? 'Unsave' : 'Save'}</span>
         )}
