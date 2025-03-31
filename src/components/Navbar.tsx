@@ -1,19 +1,17 @@
 // components/Navbar.tsx
 "use client";
 import React from 'react';
-import { Globe, Users, Plus, Mail, BookOpen, Settings, User } from 'lucide-react';
+import { Globe, Plus, BookOpen, Settings, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const Navbar: React.FC = () => {
   const router = useRouter();
 
   const navItems = [
-    { path: '/following', icon: Users, label: 'Following' },
     { path: '/fyp', icon: Globe, label: 'FYP' },
     { path: '/post', icon: Plus, label: '', isMain: true },
-    { path: '/inbox', icon: Mail, label: 'Inbox' },
     { path: '/saved', icon: BookOpen, label: 'Saved' },
-    { path: '/profile', icon: User, label: 'Profile' }, // Added Profile
+    { path: '/profile', icon: User, label: 'Profile' },
     { path: '/settings', icon: Settings, label: 'Settings' },
   ];
 

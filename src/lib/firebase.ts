@@ -1,39 +1,35 @@
-// src/lib/firebase.ts
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
+// lib/firebase.ts
+import admin from "firebase-admin";
+import { cert } from "firebase-admin/app";
 
-// Check if already initialized
-if (getApps().length === 0) {
+if (!admin.apps.length) {
   try {
-    console.log("Attempting to initialize Firebase Admin SDK");
     const serviceAccountRaw = process.env.NEXT_PRIVATE_FIREBASE_SERVICE_ACCOUNT;
-
-    if (!serviceAccountRaw) {
-      throw new Error("NEXT_PRIVATE_FIREBASE_SERVICE_ACCOUNT environment variable is not set");
-    }
-
-    let serviceAccount;
-    try {
-      serviceAccount = JSON.parse(serviceAccountRaw);
-      console.log("Service Account parsed successfully");
-    } catch (parseError) {
-      throw new Error(`Failed to parse service account JSON: ${parseError.message}`);
-    }
-
-    initializeApp({
-      credential: cert(serviceAccount)
-    });
     
-    console.log("Firebase Admin initialized successfully");
+    if (!serviceAccountRaw) {
+      throw new Error("Service account key is not defined");
+    }
+    const serviceAccount = JSON.parse(serviceAccountRaw);
+
+    admin.initializeApp({
+      credential: cert(serviceAccount),
+      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
+    });
   } catch (error) {
-    console.error("Firebase Admin initialization error:", error);
-    throw error; // Fail fast to prevent uninitialized exports
+    console.error("Firebase initialization error:", error);
+    throw error; // Propagate the error to be caught by the API route
   }
-} else {
-  console.log("Firebase Admin already initialized, skipping");
 }
 
-// Export Firebase Admin services
-export const adminDb = getFirestore();
-export const adminAuth = getAuth();
+export const db = admin.firestore();
+export const auth = admin.auth();
+export const adminAuth = admin.auth();
+
+export const verifyIdToken = async (token: string) => {
+  try {
+    return await auth.verifyIdToken(token);
+  } catch (error) {
+    console.error("Error verifying Firebase ID token:", error);
+    return null;
+  }
+};

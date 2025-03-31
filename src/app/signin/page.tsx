@@ -42,7 +42,7 @@ export default function SignInPage() {
       setError(null);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
-      Cookies.set('sr-token', token, { expires: 24, secure: true, sameSite: 'strict' });
+      Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
       window.location.href = '/';
     } catch (error: any) {
       setError(error.message || 'Invalid credentials. Please try again.');
@@ -54,7 +54,7 @@ export default function SignInPage() {
       setError(null);
       const userCredential = await signInWithPopup(auth, googleProvider);
       const token = await userCredential.user.getIdToken();
-      Cookies.set('sr-token', token, { expires: 24, secure: true, sameSite: 'strict' });
+      Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
       window.location.href = '/';
     } catch (error: any) {
       setError(error.message || 'Google sign-in failed. Please try again.');

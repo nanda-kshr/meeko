@@ -8,9 +8,9 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get('sr-token');
+    const token = Cookies.get('meeken');
     if (token) {
-      router.push('/following');
+      router.push('/fyp');
     } else {
       router.push('/signin');
     }

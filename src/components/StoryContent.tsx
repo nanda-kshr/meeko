@@ -11,9 +11,9 @@ export const StoryContent: React.FC<StoryContentProps> = ({ content }) => {
   return (
     <div
       ref={contentRef}
-      className="flex-grow overflow-y-auto max-h-[50vh] pr-2 -mr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300"
+      className="flex-grow overflow-y-auto max-h-[50vh] pr-2 -mr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 prose prose-gray"
     >
-      <div className="text-lg text-gray-800 font-normal">{content}</div>
+      <div className="text-base text-gray-700 font-normal whitespace-pre-wrap">{content}</div>
     </div>
   );
 };

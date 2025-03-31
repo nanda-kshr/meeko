@@ -1,14 +1,13 @@
 // src/app/api/v1/stories/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase";
+import { adminAuth, db } from "@/lib/firebase";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("POST /api/v1/stories received");
 
-    if (!adminDb) {
-      console.error("adminDb is not initialized");
+    if (!db) {
+      console.error("db is not initialized");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
@@ -22,9 +21,17 @@ export async function POST(req: NextRequest) {
     const user = await adminAuth.getUser(decodedToken.uid);
     console.log("User:", { uid: user.uid, displayName: user.displayName });
 
-    const { content } = await req.json();
+    const { title, content, genre } = await req.json();
+    
+    // Validation
+    if (!title || typeof title !== "string" || title.trim() === "") {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
     if (!content || typeof content !== "string" || content.trim() === "") {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    }
+    if (!genre || typeof genre !== "string" || genre.trim() === "") {
+      return NextResponse.json({ error: "Genre is required" }, { status: 400 });
     }
 
     const author = {
@@ -32,9 +39,11 @@ export async function POST(req: NextRequest) {
       name: user.displayName || "Anonymous",
     };
 
-    const docRef = await adminDb.collection("stories").add({
+    const docRef = await db.collection("stories").add({
       author,
+      title: title.trim(),
       content: content.trim(),
+      genre: genre.trim(),
       timestamp: FieldValue.serverTimestamp(),
     });
     
@@ -52,28 +61,27 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Fetch all stories (existing endpoint)
+// The GET handler and helper functions (getMyStories, getFollowingStories, getRandomStories) remain unchanged
 export async function GET(req: NextRequest) {
   try {
     console.log("GET /api/v1/stories received");
-    if (!adminDb) {
-      console.error("adminDb is not initialized");
+    if (!db) {
+      console.error("db is not initialized");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
     
     const url = new URL(req.url);
-    const mode = url.searchParams.get("mode") || "all"; // Default to all stories
+    const mode = url.searchParams.get("mode") || "all";
 
     if (mode === "mine") {
       return await getMyStories(req);
     } else if (mode === "following") {
       return await getFollowingStories(req);
     } else if (mode === "random") {
-      return await getRandomStories(req);
+      return await getRandomStories();
     }
 
-    // Default: Fetch all stories
-    const storiesSnapshot = await adminDb.collection("stories")
+    const storiesSnapshot = await db.collection("stories")
       .orderBy("timestamp", "desc")
       .get();
       
@@ -82,8 +90,7 @@ export async function GET(req: NextRequest) {
       return {
         id: doc.id,
         ...data,
-        timestamp: data.timestamp?.toDate?.() ? 
-          data.timestamp.toDate().toISOString() : null,
+        timestamp: data.timestamp?.toDate?.() ? data.timestamp.toDate().toISOString() : null,
       };
     });
     
@@ -94,6 +101,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch stories" }, { status: 500 });
   }
 }
+
+// Helper functions (getMyStories, getFollowingStories, getRandomStories) remain unchanged...
 
 // Fetch only my stories
 async function getMyStories(req: NextRequest) {
@@ -107,7 +116,7 @@ async function getMyStories(req: NextRequest) {
     const decodedToken = await adminAuth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
-    const storiesSnapshot = await adminDb.collection("stories")
+    const storiesSnapshot = await db.collection("stories")
       .where("author.id", "==", userId)
       .orderBy("timestamp", "desc")
       .get();
@@ -142,7 +151,7 @@ async function getFollowingStories(req: NextRequest) {
     const userId = decodedToken.uid;
 
     // Get the list of users I follow (assumes a "following" subcollection)
-    const followingSnapshot = await adminDb.collection("users")
+    const followingSnapshot = await db.collection("users")
       .doc(userId)
       .collection("following")
       .get();
@@ -152,7 +161,7 @@ async function getFollowingStories(req: NextRequest) {
       return NextResponse.json([], { status: 200 }); // No one followed
     }
 
-    const storiesSnapshot = await adminDb.collection("stories")
+    const storiesSnapshot = await db.collection("stories")
       .where("author.id", "in", followingIds)
       .orderBy("timestamp", "desc")
       .get();
@@ -176,9 +185,9 @@ async function getFollowingStories(req: NextRequest) {
 }
 
 // Fetch random stories
-async function getRandomStories(req: NextRequest) {
+async function getRandomStories() {
   try {
-    const storiesSnapshot = await adminDb.collection("stories").get();
+    const storiesSnapshot = await db.collection("stories").get();
     const allStories = storiesSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {

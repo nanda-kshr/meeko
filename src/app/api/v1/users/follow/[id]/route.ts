@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase";
+import { adminAuth, db } from "@/lib/firebase";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(
@@ -32,8 +32,8 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const currentUserRef = adminDb.collection("users").doc(currentUserId);
-    const targetUserRef = adminDb.collection("users").doc(targetUserId);
+    const currentUserRef = db.collection("users").doc(currentUserId);
+    const targetUserRef = db.collection("users").doc(targetUserId);
 
     // Check if already following
     const followingRef = currentUserRef.collection("following").doc(targetUserId);
@@ -58,12 +58,10 @@ export async function POST(
         timestamp: FieldValue.serverTimestamp()
       });
       
-      // Add to target user's followers
       await targetUserRef.collection("followers").doc(currentUserId).set({
         timestamp: FieldValue.serverTimestamp()
       });
       
-      // Update follower count
       await targetUserRef.update({
         followerCount: FieldValue.increment(1)
       });

@@ -46,7 +46,7 @@ export default function  SignUpPage() {
       setPassword('');
       setConfirmPassword('');
       const token = await userCredential.user.getIdToken();
-      Cookies.set('sr-token', token, { expires: 24 }); 
+      Cookies.set('meeken', token, { expires: 24 }); 
       window.location.href = '/'
     } catch{
       alert('An unexpected error occurred');
@@ -57,7 +57,7 @@ export default function  SignUpPage() {
     try {
       const userCredential = await  signInWithPopup(auth, googleProvider);
       const token = await userCredential.user.getIdToken();
-      Cookies.set('sr-token', token, { expires: 24 }); 
+      Cookies.set('meeken', token, { expires: 24 }); 
       window.location.href = '/'
     } catch{
       alert('An unexpected error occurred');

@@ -4,41 +4,19 @@ import { StoryHeader } from './StoryHeader';
 import { StoryContent } from './StoryContent';
 import { StoryActions } from './StoryActions';
 import { SwipeButtons } from './SwipeButtons';
-
-interface Story {
-  id: number;
-  author: {
-    id: string;
-    name: string;
-  };
-  content: string;
-  timestamp: string;
-}
+import { getAuth } from 'firebase/auth';
+import type { Story } from '@/lib/types';
 
 interface StoryFeedProps {
   stories: Story[];
   currentStoryIndex: number;
   setCurrentStoryIndex: (index: number) => void;
-  savedStories: number[];
-  setSavedStories: (stories: number[]) => void;
-  likedStories: number[];
-  setLikedStories: (stories: number[]) => void;
-  followedUsers: string[];
-  setFollowedUsers: (userId: string) => void;  // Changed to handle a single user ID
-  setShowComments: (show: boolean) => void;
 }
 
 export const StoryFeed: React.FC<StoryFeedProps> = ({
   stories,
   currentStoryIndex,
   setCurrentStoryIndex,
-  savedStories,
-  setSavedStories,
-  likedStories,
-  setLikedStories,
-  followedUsers = [],
-  setFollowedUsers,
-  setShowComments,
 }) => {
   const [isSwiping, setIsSwiping] = useState(false);
   const [startX, setStartX] = useState<number | null>(null);
@@ -104,15 +82,14 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
 
   const swipeCardAway = (direction: 'left' | 'right') => {
     if (!cardRef.current) return;
-
     const screenWidth = window.innerWidth;
     const targetX = direction === 'left' ? -screenWidth * 1.5 : screenWidth * 1.5;
-
+    if (direction === 'right') { handleLikeStory(); }
     cardRef.current.style.transition = 'transform 0.3s ease-out';
     cardRef.current.style.transform = `translateX(${targetX}px) rotate(${targetX / 20}deg)`;
 
     setTimeout(() => {
-      setCurrentStoryIndex((prev) => (prev + 1) % stories.length);
+      setCurrentStoryIndex((currentStoryIndex + 1) % stories.length);
       resetCard();
     }, 300);
   };
@@ -144,27 +121,98 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
     };
   }, [isSwiping, isClient]);
 
-  const handleLikeStory = (e: React.MouseEvent) => {
+  const handleSaveStory = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const id = stories[currentStoryIndex].id;
-    setLikedStories((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
+
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`/api/v1/stories/${id}/save`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Failed to save story:", data.error);
+        return;
+      }
+    } catch (error) {
+      console.error("Error saving story:", error);
+    }
   };
 
-  const handleSaveStory = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleUnlikeStory = async () => {
     const id = stories[currentStoryIndex].id;
-    setSavedStories((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
+
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`/api/v1/stories/${id}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Failed to toggle like:", data.error);
+        return;
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
   };
 
-  const handleFollowUser = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const authorId = stories[currentStoryIndex].author.id;
-    setFollowedUsers(authorId); // Call with the single user ID
-  };
+  const handleLikeStory = async () => {
+    const id = stories[currentStoryIndex].id;
 
-  const handleOpenComments = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowComments(true);
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`/api/v1/stories/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Failed to toggle like:", data.error);
+        return;
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
   };
 
   if (!isClient || stories.length === 0) {
@@ -172,9 +220,6 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
   }
 
   const currentStory = stories[currentStoryIndex];
-  const isLiked = likedStories.includes(currentStory.id);
-  const isSaved = savedStories.includes(currentStory.id);
-  const isFollowing = followedUsers.includes(currentStory.author.id);
 
   return (
     <div
@@ -191,19 +236,19 @@ export const StoryFeed: React.FC<StoryFeedProps> = ({
       >
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden flex flex-col md:flex-row">
           <div className="w-full p-6 flex flex-col">
-            <StoryHeader author={currentStory.author} timestamp={currentStory.timestamp} />
+            <StoryHeader
+              author={currentStory.author.name || 'Anonymous'}
+              title={currentStory.title}
+              genre={currentStory.genre}
+            />
             <StoryContent content={currentStory.content} />
             <div className="flex justify-center space-x-4 mt-6 flex-shrink-0">
-              <SwipeButtons swipeCardAway={swipeCardAway} />
-              <StoryActions
-                isLiked={isLiked}
-                isSaved={isSaved}
-                isFollowing={isFollowing}
-                handleLikeStory={handleLikeStory}
-                handleSaveStory={handleSaveStory}
-                handleFollowUser={handleFollowUser}
-                handleOpenComments={handleOpenComments}
+              <SwipeButtons 
+                swipeCardAway={swipeCardAway}
+                handleLikeStory={handleLikeStory} 
+                handleUnlikeStory={handleUnlikeStory}
               />
+              <StoryActions handleSaveStory={handleSaveStory} />
             </div>
           </div>
         </div>
