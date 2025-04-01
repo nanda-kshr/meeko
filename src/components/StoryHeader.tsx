@@ -10,17 +10,15 @@ interface StoryHeaderProps {
   genre: string;
 }
 export const formatTimestamp = (ts: string | Timestamp | undefined): string => {
-  if (!ts) return 'Unknown date'; // Handle undefined
+  if (!ts) return 'Unknown date'; 
   if (typeof ts === 'string') {
-    // Try parsing the string directly
     const date = new Date(ts);
     return isNaN(date.getTime()) ? 'Invalid date' : date.toLocaleDateString();
   }
   if ('toDate' in ts && typeof ts.toDate === 'function') {
-    // Handle Firestore Timestamp
     return ts.toDate().toLocaleDateString();
   }
-  return 'Invalid date'; // Fallback for unexpected types
+  return 'Invalid date'; 
 };
 
 export const StoryHeader: React.FC<StoryHeaderProps> = ({ author, title, genre }) => {
