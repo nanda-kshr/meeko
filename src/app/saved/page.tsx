@@ -1,28 +1,26 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { auth } from '@/config/firebase';
 import Link from 'next/link';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import type {Story} from '@/lib/types';
 import { formatTimestamp } from '@/components/stories/StoryHeader';
-import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-
+import { useAuth } from '@/lib/authContext';
 
 export default function SavedStoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user] = useAuthState(auth);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null); 
-  const router = useRouter()
-  useEffect(()=>{
-      onAuthStateChanged(auth, (user: User | null) => {
-        if (!user) router.push('/signin');
-      });
-    })
-    
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/signin');
+    }
+  }, [user, authLoading, router]);
+
   useEffect(() => {
     setLoading(true);
     async function fetchSavedStories() {

@@ -1,28 +1,18 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/config/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { motion } from 'framer-motion';
 import { LogOut, BookOpen, PlusCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import StoriesList from '@/components/stories/StoriesList';
-import type { User as FirebaseUser, User } from "firebase/auth";
+import { useAuth } from '@/lib/authContext';
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('stories');
   const router = useRouter();
-
-  useEffect(()=>{
-      setLoading(true);
-      onAuthStateChanged(auth, (user: User | null) => {
-        if (!user) router.push('/signin');
-        setUser(user);
-      });
-      setLoading(false);
-    }, [router]);
+  const { user, loading } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -58,7 +48,11 @@ export default function ProfilePage() {
     );
   }
 
-  
+  if (!user) {
+    router.push('/signin');
+    return null;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-black font-sans">
       {/* Fixed header with blur effect */}

@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/config/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { useAuth } from '@/lib/authContext';
 
 export default function PostPage() {
   const [title, setTitle] = useState("");
@@ -11,15 +10,14 @@ export default function PostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
+  const { user, loading } = useAuth();
 
-  useEffect(()=>{
-      onAuthStateChanged(auth, (user: User | null) => {
-        if (!user) router.push('/signin');
-      });
-    })
-  // Check auth state efficiently
   useEffect(() => {
-    const user = auth.currentUser; // Immediate check
+    if (!loading && !user) {
+      router.push('/signin');
+      return;
+    }
+
     if (user) {
       user.getIdToken(true).then((idToken) => {
         setToken(idToken);
@@ -28,18 +26,8 @@ export default function PostPage() {
         setToken(null);
         router.push("/signin");
       });
-    } else {
-      // Fallback to listener if no user is cached
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        if (user) {
-          user.getIdToken(true).then((idToken) => setToken(idToken));
-        } else {
-          router.push("/signin");
-        }
-      });
-      return () => unsubscribe();
     }
-  }, [router]);
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
