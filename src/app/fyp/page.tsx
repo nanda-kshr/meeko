@@ -60,7 +60,7 @@ export default function FypPage() {
 
       const data = await response.json();
       const newStories: Story[] = (data.stories || []).filter(
-        (story: Story) => story.author.name !== user.displayName
+        (story: Story) => story.author.id !== user.uid
       );
 
       setStories((prev) => (append ? [...prev, ...newStories] : newStories));
@@ -84,7 +84,7 @@ export default function FypPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col h-screen bg-gradient-to-r from-[#2c3e50] to-[#3498db] text-[#f5f5f5] dark:text-[#f5f5f5] font-body">
+      <div className="flex flex-col h-screen bg-white text-black font-body">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-4">
             <h2 className="text-xl mb-4 font-heading">Error</h2>
@@ -96,7 +96,7 @@ export default function FypPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-r from-[#2c3e50] to-[#3498db] text-[#f5f5f5] dark:text-[#f5f5f5] dark:from-[#1a2533] dark:to-[#2980b9] font-body">
+    <div className="flex flex-col h-screen bg-white text-black font-body">
       {stories.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-4">
@@ -115,7 +115,7 @@ export default function FypPage() {
             <div className="text-center py-4">
               <button
                 onClick={() => fetchStories(true)}
-                className="px-4 py-2 bg-white text-[#2c3e50] rounded-lg text-sm font-medium"
+                className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium"
               >
                 Load More
               </button>
@@ -123,7 +123,7 @@ export default function FypPage() {
           )}
           {loading && (
             <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black mx-auto"></div>
             </div>
           )}
         </>

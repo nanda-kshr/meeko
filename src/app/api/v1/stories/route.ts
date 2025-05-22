@@ -82,11 +82,11 @@ export async function GET(req: NextRequest) {
     }
 
     const url = new URL(req.url);
-    const mode = url.searchParams.get("mode") || "all";
+    let mode = url.searchParams.get("mode") || "all";
     const genre = url.searchParams.get("genre");
     const limit = parseInt(url.searchParams.get("limit") || "20", 10); // Default to 20 stories
     const cursor = url.searchParams.get("cursor"); // For pagination
-
+    mode = "random"
     if (mode === "mine") {
       return await getMyStories(req, genre, limit, cursor);
     } else if (mode === "following") {

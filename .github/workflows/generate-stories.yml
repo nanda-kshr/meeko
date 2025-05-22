@@ -1,0 +1,19 @@
+name: Generate Stories
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  generate-stories:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate Story
+        run: |
+          curl -X POST http://meeko-lemon.vercel.app/generate \
+            -H "Content-Type: application/json" \
+            -d '{"password": "${{ secrets.ADMIN_PASS }}"}'
+        env:
+          ADMIN_PASS: ${{ secrets.ADMIN_PASS }} 
