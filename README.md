@@ -97,7 +97,7 @@ We welcome contributions! This is a perfect project for:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/meeko.git
+   git clone https://github.com/nanda-kshr/meeko.git
    ```
 
 2. Install dependencies:
@@ -107,7 +107,7 @@ We welcome contributions! This is a perfect project for:
    ```
 
 3. Set up environment variables:
-   Create a `.env.local` file with:
+   Create a `.env` file with:
    ```
    NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
