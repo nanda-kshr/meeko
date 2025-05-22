@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
+import FirebaseFirestore from "firebase-admin/firestore";
 
 interface Story {
   id: string;
@@ -128,11 +129,11 @@ export async function GET(req: NextRequest) {
 
     // Include next cursor for pagination
     const nextCursor = storiesSnapshot.docs.length === limit ? storiesSnapshot.docs[storiesSnapshot.docs.length - 1].id : null;
-
     return NextResponse.json({ stories, nextCursor }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching stories:", error);
-    if (error.code === 9 && error.details?.includes("requires an index")) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 9 && 
+        'details' in error && typeof error.details === 'string' && error.details.includes("requires an index")) {
       return NextResponse.json(
         {
           error: "Query requires an index",
@@ -285,11 +286,10 @@ async function getRandomStories(genre: string | null, limit: number = 10) {
       if (genre && genre.trim() !== "") {
         query = query.where("genre", "==", genre.trim());
       }
-
       const additionalSnapshot = await query.get();
       storiesSnapshot = {
         docs: [...storiesSnapshot.docs, ...additionalSnapshot.docs],
-      } as any;
+      } as FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>;
     }
 
     const stories = storiesSnapshot.docs.map((doc) => {
@@ -302,9 +302,10 @@ async function getRandomStories(genre: string | null, limit: number = 10) {
     });
 
     return NextResponse.json({ stories, nextCursor: null }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching random stories:", error);
-    if (error.code === 9 && error.details?.includes("requires an index")) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 9 && 
+        'details' in error && typeof error.details === 'string' && error.details.includes("requires an index")) {
       return NextResponse.json(
         {
           error: "Query requires an index",
@@ -427,9 +428,10 @@ async function getPersonalizedStories(req: NextRequest, limit: number, cursor: s
     const nextCursor = allStories.length === limit ? currentCursor : null;
 
     return NextResponse.json({ stories: allStories, nextCursor }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching personalized stories:", error);
-    if (error.code === 9 && error.details?.includes("requires an index")) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 9 && 
+        'details' in error && typeof error.details === 'string' && error.details.includes("requires an index")) {
       return NextResponse.json(
         {
           error: "Query requires an index",
