@@ -30,6 +30,15 @@ Meeko serves multiple purposes:
 - **Animations**: Framer Motion
 - **AI Integration**: Google's Gemini AI
 
+## Add this if you want to learn about datastructure usecases in projects.
+
+** Anti-Cyberbullying Feature Implementation for Meeko** 
+🎯 Overview
+This implementation adds an AI-powered moderation system to Meeko that automatically detects and handles cyberbullying content using Google's Gemini AI. The system uses a queue-based approach with scheduled processing to ensure all content is moderated before being published.
+🏗️ Architecture
+User Posts Story → Queue (Pending) → AI Moderation (Every 10 min) → Publish/Edit/Remove
+
+
 ## 🐛 Known Issues & Learning Opportunities
 
 This project intentionally contains several issues and suboptimal practices that serve as learning opportunities:
