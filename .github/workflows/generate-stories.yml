@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Generate Story
         run: |
-          curl -X POST http://meeko-lemon.vercel.app/generate \
+          curl -X POST https://meeko-lemon.vercel.app/generate \
             -H "Content-Type: application/json" \
             -d '{"password": "${{ secrets.ADMIN_PASS }}"}'
         env:
