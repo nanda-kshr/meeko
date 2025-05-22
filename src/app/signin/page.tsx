@@ -1,12 +1,13 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/config/firebase';
 import Cookies from 'js-cookie';
 import { AuthForm } from '@/components/AuthForm';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/authContext';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -14,7 +15,22 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const ref = useRef(null);
   const router = useRouter();
+  const { user, loading } = useAuth();
   const isInView = useInView(ref, { once: false, amount: 0.3 });
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/fyp');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const textReveal = {
     initial: {},
@@ -45,8 +61,8 @@ export default function SignInPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
-      window.location.href = '/';
-    } catch{
+      router.replace('/fyp');
+    } catch {
       setError('Invalid credentials. Please try again.');
     }
   };
@@ -57,7 +73,7 @@ export default function SignInPage() {
       const userCredential = await signInWithPopup(auth, googleProvider);
       const token = await userCredential.user.getIdToken();
       Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
-      router.push('/');
+      router.replace('/fyp');
     } catch {
       setError('Google sign-in failed. Please try again.');
     }
@@ -111,7 +127,7 @@ export default function SignInPage() {
             <p className="text-center text-muted-foreground mt-6">
               Don&apos;t have an account?{' '}
               <button
-                onClick={() => window.location.href = '/signup'}
+                onClick={() => router.push('/signup')}
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Sign Up
