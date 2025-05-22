@@ -1,6 +1,6 @@
 // /api/v1/stories/[storyId]/dislike/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db, adminAuth } from "@/lib/firebase";
+import { adminDb, adminAuth } from "@/lib/firebaseAdmin";
 
 export async function POST(
   req: NextRequest,
@@ -37,8 +37,8 @@ export async function POST(
     const userId = decodedToken.uid;
 
     // Reference to user and story documents
-    const userRef = db.collection("users").doc(userId);
-    const storyRef = db.collection("stories").doc(storyId);
+    const userRef = adminDb.collection("users").doc(userId);
+    const storyRef = adminDb.collection("stories").doc(storyId);
 
     // Get user and story data
     const [userDoc, storyDoc] = await Promise.all([

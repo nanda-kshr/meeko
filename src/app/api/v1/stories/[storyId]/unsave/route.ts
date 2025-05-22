@@ -1,6 +1,6 @@
 // /api/stories/[storyId]/unsave/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db, adminAuth } from "@/lib/firebase";
+import { adminDb, adminAuth } from "@/lib/firebaseAdmin";
 
 export async function DELETE(
   req: NextRequest,
@@ -38,7 +38,7 @@ export async function DELETE(
 
     const userId = decodedToken.uid;
 
-    const userRef = db.collection("users").doc(userId);
+    const userRef = adminDb.collection("users").doc(userId);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {

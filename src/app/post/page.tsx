@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/config/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 export default function PostPage() {
   const [title, setTitle] = useState("");
@@ -11,6 +12,11 @@ export default function PostPage() {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(()=>{
+      onAuthStateChanged(auth, (user: User | null) => {
+        if (!user) router.push('/signin');
+      });
+    })
   // Check auth state efficiently
   useEffect(() => {
     const user = auth.currentUser; // Immediate check
@@ -78,7 +84,7 @@ export default function PostPage() {
 
   // Render form with title, content, and genre fields
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white font-sans p-4">
+    <div className="flex flex-col min-h-screen bg-white text-black font-sans p-4">
       <h1 className="text-2xl font-bold mb-4">Post a New Story</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
@@ -86,13 +92,13 @@ export default function PostPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Story Title"
-          className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 rounded-lg bg-white text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
           disabled={isSubmitting || token === null}
         />
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 rounded-lg bg-white text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
           disabled={isSubmitting || token === null}
         >
           <option value="">Select Genre</option>
@@ -108,12 +114,12 @@ export default function PostPage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's on your mind?"
-          className="w-full h-40 p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-40 p-3 rounded-lg bg-white text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
           disabled={isSubmitting || token === null}
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
           disabled={isSubmitting || token === null}
         >
           {isSubmitting ? "Posting..." : token === null ? "Loading..." : "Post Story"}
@@ -121,7 +127,7 @@ export default function PostPage() {
       </form>
       <button
         onClick={() => router.push("/fyp")}
-        className="mt-4 text-gray-400 hover:text-white"
+        className="mt-4 text-gray-600 hover:text-black"
         disabled={isSubmitting}
       >
         Back to Feed

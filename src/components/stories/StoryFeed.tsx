@@ -5,7 +5,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { StoryHeader } from './StoryHeader';
 import { StoryContent } from './StoryContent';
 import { StoryActions } from './StoryActions';
-import { SwipeButtons } from './SwipeButtons';
+import { SwipeButtons } from '../SwipeButtons';
 import { getAuth } from 'firebase/auth';
 import type { Story } from '@/lib/types';
 

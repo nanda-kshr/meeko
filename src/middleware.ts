@@ -1,20 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-    const response = NextResponse.next();
+const userPaths = ["/api/"];
 
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return new NextResponse(null, { status: 204 });
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  res.headers.set("Access-Control-Allow-Origin", "*");
+  res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: res.headers, status: 204 });
+  }
+  const pathname = req.nextUrl.pathname;
+  const isUserRoute = userPaths.some((path) => pathname.startsWith(path));
+  if (isUserRoute) {
+    const authHeader = req.headers.get("Authorization");
+    const token = authHeader?.split("Bearer ")[1];
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+  }
 
-    return response;
+  return res;
 }
 
+
 export const config = {
-    matcher: '/:path*',
+    matcher: [
+        "/api/",
+          // This will match all paths
+    ],
 };

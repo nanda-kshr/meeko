@@ -1,8 +1,7 @@
-// components/stories/StoryCard.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, User } from 'lucide-react';
-import { Story } from './stories/StoriesList';
+import { Story } from './StoriesList';
 
 interface StoryCardProps {
   story: Story;
@@ -30,22 +29,22 @@ export default function StoryCard({ story, onClick }: StoryCardProps) {
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="bg-gray-800 rounded-lg p-4 cursor-pointer shadow-md"
+      className="bg-white rounded-lg p-4 cursor-pointer shadow-md border border-gray-200"
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-semibold text-lg">
+        <h3 className="font-semibold text-lg text-black">
           {/* Using first line or first few words as "title" */}
           {story.content.split('\n')[0].substring(0, 60) + 
             (story.content.split('\n')[0].length > 60 ? '...' : '')}
         </h3>
       </div>
       
-      <div className="text-gray-400 mb-4 text-sm">
+      <div className="text-gray-700 mb-4 text-sm">
         {contentPreview}
       </div>
       
-      <div className="flex justify-between items-center text-xs text-gray-500">
+      <div className="flex justify-between items-center text-xs text-gray-600">
         <div className="flex items-center gap-1">
           <User size={14} />
           <span>{story.author.name}</span>

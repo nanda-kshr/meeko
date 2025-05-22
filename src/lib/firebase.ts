@@ -1,35 +1,16 @@
-// lib/firebase.ts
-import admin from "firebase-admin";
-import { cert } from "firebase-admin/app";
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
-if (!admin.apps.length) {
-  try {
-    const serviceAccountRaw = process.env.NEXT_PRIVATE_FIREBASE_SERVICE_ACCOUNT;
-    
-    if (!serviceAccountRaw) {
-      throw new Error("Service account key is not defined");
-    }
-    const serviceAccount = JSON.parse(serviceAccountRaw);
-
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
-    });
-  } catch (error) {
-    console.error("Firebase initialization error:", error);
-    throw error; // Propagate the error to be caught by the API route
-  }
-}
-
-export const db = admin.firestore();
-export const auth = admin.auth();
-export const adminAuth = admin.auth();
-
-export const verifyIdToken = async (token: string) => {
-  try {
-    return await auth.verifyIdToken(token);
-  } catch (error) {
-    console.error("Error verifying Firebase ID token:", error);
-    return null;
-  }
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
+
+const app: FirebaseApp = initializeApp(firebaseConfig);
+export const auth: Auth = getAuth(app);
+export const db: Firestore = getFirestore(app);

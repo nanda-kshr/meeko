@@ -1,19 +1,24 @@
-// pages/index.tsx (Pages Router) or app/page.tsx (App Router)
+//app/page.tsx 
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+
 
 export default function Home() {
   const router = useRouter();
-
   useEffect(() => {
-    const token = Cookies.get('meeken');
-    if (token) {
-      router.push('/fyp');
-    } else {
-      router.push('/signin');
-    }
+    onAuthStateChanged(auth, (user: User | null) => {
+      console.log(user ? 'User signed in' : 'No user');
+      if (user) {
+        router.push('/fyp');
+      } else {
+        router.push('/signin');
+      }
+    });
+
+    
   }, [router]);
 
   return null;

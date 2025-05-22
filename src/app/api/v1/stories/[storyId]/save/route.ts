@@ -2,7 +2,7 @@
 // /api/stories/[storyId]/save
 
 import { NextRequest, NextResponse } from "next/server";
-import { db, adminAuth } from "@/lib/firebase";
+import { adminDb, adminAuth } from "@/lib/firebaseAdmin";
 
 export async function POST(
   req: NextRequest,
@@ -40,7 +40,7 @@ export async function POST(
 
     const userId = decodedToken.uid;
 
-    const userRef = db.collection("users").doc(userId);
+    const userRef = adminDb.collection("users").doc(userId);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {

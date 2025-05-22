@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Calendar } from 'lucide-react';
-import { Story } from './stories/StoriesList';
+import { Story } from './StoriesList';
 
 interface StoryModalProps {
   story: Story;
