@@ -11,12 +11,20 @@ export default function Home() {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        router.push('/fyp');
+        router.replace('/fyp');
       } else {
-        router.push('/signin');
+        router.replace('/signin');
       }
     }
   }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return null;
 }

@@ -6,12 +6,14 @@ import { auth, googleProvider } from '@/config/firebase';
 import Cookies from 'js-cookie';
 import { AuthForm } from '@/components/AuthForm';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { useRouter } from 'next/router';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const ref = useRef(null);
+  const router = useRouter();
   const isInView = useInView(ref, { once: false, amount: 0.3 });
 
   const textReveal = {
@@ -55,7 +57,7 @@ export default function SignInPage() {
       const userCredential = await signInWithPopup(auth, googleProvider);
       const token = await userCredential.user.getIdToken();
       Cookies.set('meeken', token, { expires: 24, secure: true, sameSite: 'strict' });
-      window.location.href = '/';
+      router.push('/');
     } catch {
       setError('Google sign-in failed. Please try again.');
     }
@@ -78,10 +80,10 @@ export default function SignInPage() {
               className="text-4xl font-bold tracking-tight mb-6 overflow-hidden flex flex-wrap justify-center"
               variants={textReveal}
             >
-              {['Welcome', 'Back'].map((word, i) => (
+              {['Welcome', 'to', 'MEEKO'].map((word, i) => (
                 <span key={i} className="mr-4 overflow-hidden inline-block">
                   <motion.span
-                    className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent"
+                    className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text"
                     variants={letterAnimation}
                   >
                     {word}
@@ -90,7 +92,7 @@ export default function SignInPage() {
               ))}
             </motion.h2>
 
-            <p className="text-center text-muted-foreground mb-8">Sign in to continue to your account</p>
+            <p className="text-center text-muted-foreground mb-8">Your digital companion, ready when you are</p>
 
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-xl text-center">

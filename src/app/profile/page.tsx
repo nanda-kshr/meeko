@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/config/firebase';
 import { signOut } from 'firebase/auth';
@@ -13,6 +13,12 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('stories');
   const router = useRouter();
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/signin');
+    }
+  }, [user, loading, router]);
 
   const handleLogout = async () => {
     try {
@@ -49,7 +55,6 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    router.push('/signin');
     return null;
   }
 

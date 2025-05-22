@@ -22,6 +22,8 @@
   --dark-background: #2f2f2f; /* Dark mode background */
   --dark-muted: #a0a0a0; /* Dark mode muted text */
   --dark-sm: 0 2px 5px rgba(0, 0, 0, 0.5); /* Dark mode shadow */
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
 }
 
 /* Dark mode variables */
@@ -49,6 +51,8 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -74,9 +78,89 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Apply base styles */
 
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  body {
+    @apply font-geist;
+  }
+
+  .font-outfit {
+    font-family: var(--font-outfit);
+  }
+
+  .font-geist {
+    font-family: var(--font-geist-sans);
+  }
+
+  .font-mono {
+    font-family: var(--font-geist-mono);
+  }
+}
+
+/* Custom styles for headings */
+h1 {
+  @apply text-4xl font-bold tracking-tight;
+}
+
+h2 {
+  @apply text-3xl font-semibold tracking-tight;
+}
+
+h3 {
+  @apply text-2xl font-semibold;
+}
+
+/* Custom styles for body text */
+p {
+  @apply text-base leading-relaxed;
+}
+
+/* Custom styles for buttons */
+button {
+  @apply font-geist;
+}
+
+/* Custom styles for inputs */
+input, textarea {
+  @apply font-geist;
+}
+
+/* Custom styles for navigation */
+nav {
+  @apply font-geist;
+}
+
+/* Custom styles for cards */
+.card {
+  @apply font-geist;
+}
+
+/* Custom styles for story titles */
+.story-title {
+  @apply font-outfit text-xl font-semibold tracking-tight;
+}
+
+/* Custom styles for story content */
+.story-content {
+  @apply font-geist text-base leading-relaxed;
+}
+
+/* Custom styles for author names */
+.author-name {
+  @apply font-outfit text-sm font-medium;
+}
+
+/* Custom styles for timestamps */
+.timestamp {
+  @apply font-mono text-xs;
+}
+
+/* Custom styles for genre tags */
+.genre-tag {
+  @apply font-outfit text-sm font-medium;
 }
 
 /* Component classes */
