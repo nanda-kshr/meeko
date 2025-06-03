@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const prompt = `Generate a random realistic experience writing of an incident for depressed people to read and get relief from their depression. The writing should be engaging for depressed people and well-written. Also generate a realistic or cartoonish author name for this story. Format the response as JSON with the following structure:
     {
       "title": "experince title",
-      "content": "Full experince content between 100-500 words",
+      "content": "Full experince content between 100-500 words on random topic, (robbery, wierd experience, etc.)",
       "genre": "One of: Fiction, Non-Fiction, Fantasy, Sci-Fi, Mystery, Romance, Poetry, Adventure, Action, Horror",
       "authorName": "Generated author name"
     }`;
